@@ -38,7 +38,7 @@ DAY_ARCHIVE_SAVE_AS = None
 
 LINKS = ()
 SOCIAL = (('envelope-o', 'mailto:pgmpy-gsoc@chrisittner.de'),
-          ('rss', 'http://chrisittner.de/pgmpy/feed.rss'),
+          ('rss', '/feed.rss'),
           ('github', 'https://github.com/chrisittner'),)
 # ('stack-overflow', 'http://chrisittner.de/pgmpy/feed.rss'),)
 
@@ -55,7 +55,8 @@ STATIC_PATHS = ['extra', 'images', 'pdfs']
 EXTRA_PATH_METADATA = {
     'extra/robots.txt': {'path': 'robots.txt'},
     'extra/favicon.ico': {'path': 'favicon.ico'},
-    'extra/htaccess': {'path': '.htaccess'}
+    'extra/htaccess': {'path': '.htaccess'},
+    'extra/CNAME': {'path': 'CNAME'},
 }
 
 THEME = 'themes/Flex'  # pelican-blue or Flex (nice-blog, twenty-html5up, html5-dopetrope, free-agent)

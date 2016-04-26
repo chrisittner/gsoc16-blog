@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.curdir)
 from pelicanconf import *
 
-SITEURL = 'http://chrisittner.de/pgmpy'
+SITEURL = 'http://chrisittner.github.io/gsoc16-blog'
 RELATIVE_URLS = False
 
 FEED_ALL_ATOM = 'feed.rss'

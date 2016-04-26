@@ -1,5 +1,6 @@
 *.pid
 *.pyc
 *.swp
+__pycache__/
 output/
 venv/
