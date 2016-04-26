@@ -15,6 +15,9 @@ DEPLOY_PATH = env.deploy_path
 production = 'lodrik@prod:22'
 dest_path = '/var/www/pgmpy'
 
+# Github Pages configuration
+env.github_pages_branch = "gh-pages"
+
 # Port for `serve`
 PORT = 8000
 
@@ -77,3 +80,10 @@ def publish():
         delete=True,
         extra_opts='-c',
     )
+
+
+def gh_pages():
+    """Publish to GitHub Pages"""
+    rebuild()
+    local("ghp-import -b {github_pages_branch} {deploy_path}".format(**env))
+    local("git push origin {github_pages_branch}".format(**env))
