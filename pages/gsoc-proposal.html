@@ -66,7 +66,7 @@
   <div>
     <p>The following project description is taken from my proposal <em>Structure learning from complete data for pgmpy</em> for Google Summer of Code 2016. The timeline below is preliminary and will be updated as needed. The GSoC work period is May-August.</p>
 <h1 id="the-project">The Project</h1>
-<p>I will introduce methods to pgmpy to select Bayesian models based on data sets. First, I will implement basic support for score-based and constraint-based structure learning. Second, I will add common enhancements to the score-based approach, including local score computation + memoization and tabu lists. Finally, I will implement the MMHC algorithm, which combines the score-based and the constraint-based method.</p>
+<p>I will introduce methods to pgmpy to select Bayesian models based on data sets. First, I’ll implement basic support for score-based and constraint-based structure learning. Second, I will add common enhancements to the score-based approach, including local score computation + memoization and tabu lists. Finally, I will implement the MMHC algorithm, which combines the score-based and the constraint-based method.</p>
 <h2 id="motivation">Motivation</h2>
 <p>By now, pgmpy supports most of the fundamental operations on probabilistic graphical models (PGMs). Given a data set and a suitable Bayesian network model, pgmpy can parametrize the model based on the data and perform the usual array of inference and sampling tasks. But the model itself must still be supplied manually.</p>
 <p>Selecting appropriate models is a major challenge in the application of graphical models. Manual construction of e.g. Bayesian networks is error-prone and infeasible for large models. “Does variable X <em>directly</em> influence Y, or might they have a common cause?” Questions like these should be answered based on data, where possible.</p>
@@ -78,7 +78,7 @@
 <h2 id="scope">Scope</h2>
 <p>Techniques for structure learning differ for Bayesian networks and Markov networks, and depending on whether or not the data is complete (In the sense that (i) each data sample contains information about exactly the same set of variables and (ii) no relevant variables are hidden). In this project, I will implement structure learning for Bayesian models and complete data.</p>
 <p>I will add two model selection techniques to pgmpy: score-based model selection and constraint-based model selection. In addition to these basic approaches, I will implement a combination of the two, the MMHC algorithm proposed in [<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.4729&amp;rep=rep1&amp;type=pdf">Tsamardinos et al.</a>, 2006].</p>
-<p>Below, I briefly describe the score-based and constraint-based approach, as well as the MMHC algorithm. I then provide a timeline and implementation plan.</p>
+<p>Below, I briefly describe the score-based and constraint-based approach, as well as the MMHC algorithm.</p>
 <h4 id="score-based-model-selection">Score-based model selection</h4>
 <p>This approach construes model selection as an optimization task. It has two building blocks:</p>
 <ul>
@@ -91,25 +91,30 @@
 <p>Importantly, these scores <em>decompose</em>, i.e. they can be computed locally for each of the variables, independent of other parts of the network. The score implementation will support memoization, such that local scores are only computed once.</p>
 <h5 id="search-strategies">Search strategies</h5>
 <p>The search space of DAGs or DAG patterns is super-exponential in the number of variables and the typical scoring functions allow for local maxima. The first property makes exhaustive search intractable for all but very small networks, the second prohibits efficient local optimization algorithms to always find the optimal structure. Thus, all interesting search strategies are heuristic.</p>
-<p>I want to implement the following heuristic search strategies:
-- Greedy Equivalence Search for DAGs and DAG patterns
-- First ascent hill climbing for DAGs (see [PGM09, page 814f]), with enhancements:
-  - Use tabu lists to ensure that new structures are explored
-  - Use score decomposition effectively</p>
-<p>For the sake of completeness, I will also add:
-  - Exhaustive search for DAGs and DAG patterns</p>
+<p>I want to implement the following heuristic search strategies:</p>
+<ul>
+<li>Greedy Equivalence Search for DAGs and DAG patterns</li>
+<li>First ascent hill climbing for DAGs (see [PGM09, page 814f]), with enhancements:</li>
+<li>Use tabu lists to ensure that new structures are explored</li>
+<li>Use score decomposition effectively</li>
+</ul>
+<p>And for the sake of completeness:</p>
+<ul>
+<li>Exhaustive search for DAGs and DAG patterns</li>
+</ul>
 <h4 id="constraint-based-model-selection">Constraint-based model selection</h4>
 <p>A common alternative approach to construct models is the following:
 1. Identify independencies in the data set using hypothesis tests
 2. Construct DAG (pattern) according to identified independencies</p>
 <p>There are polynomial-time algorithms for model construction from a set of independencies (see [<a href="http://www.cs.technion.ac.il/~dang/books/Learning%20Bayesian%20Networks&amp;#40;Neapolitan,%20Richard&amp;#41;.pdf">LBN04</a>, page 550] for pseudocode of the PC algorithm, that was introduced by [<a href="https://mitpress.mit.edu/books/causation-prediction-and-search">Spirtes et al.</a>, 1993]). These algorithms are generally more efficient than score-based methods but only work under the assumption that the set of independencies is <em>faithful</em>, i.e. there exists a DAG that exactly corresponds to it. Spurious dependencies in the data set can cause the reported independencies to violate faithfulness. The faithfulness requirement also makes it difficult to construct a Bayesian network from a manually provided list of independencies, because that list must first be extended to satisfy the faithfulness criterion. This in turn is computationally unfeasible except for small models. I will implement constraint-based model selection using independence tests from <code>scipy.stats</code> and the PC model construction algorithm.</p>
 <h4 id="the-mmhc-algorithm">The MMHC algorithm</h4>
-<p>The MMHC algorithm combines the constraint-based and score-based method effectively. The authors suggest in [<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.4729&amp;rep=rep1&amp;type=pdf">Tsamardinos et al</a>, 2006] that it performs very well against other state-of-the-art structure finding algorithms. At the same time, it is not too difficult to implement. It has two basic steps:
-Learn undirected graph skeleton using independence tests + constraint-based construction procedure
-Orient edges using score-based optimization with Bayesian score + modified hill-climbing search
-For the implementation, I will follow the pseudo code specification in the paper (Algorithm 1, 2 and 3).</p>
+<p>The MMHC algorithm combines the constraint-based and score-based method effectively. The authors suggest in [<a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.4729&amp;rep=rep1&amp;type=pdf">Tsamardinos et al</a>, 2006] that it performs very well against other state-of-the-art structure finding algorithms. At the same time, it is not too difficult to implement. It has two basic steps:</p>
+<ul>
+<li>Learn undirected graph skeleton using independence tests + constraint-based construction procedure</li>
+<li>Orient edges using score-based optimization with Bayesian score + modified hill-climbing search</li>
+</ul>
 <h1 id="timeline">Timeline</h1>
-<p>The GSoC period shall be structured in 6 bi-weekly milestones. I will begin each milestone with a discussion post on the GSoC blog.</p>
+<p>The GSoC period will be structured in 6 bi-weekly milestones. Each milestone begins with a discussion post on the GSoC blog.</p>
 <h2 id="milestone-1-scoring-methods">Milestone 1: Scoring methods</h2>
 <h4 id="implement-representation-for-dag-patterns-i-equivalence-class-of-dags">Implement representation for DAG patterns (= I-Equivalence class of DAGs)</h4>
 <p>Add base class for DAG pattern similar to <code>DirectedGraph</code>, except that some edges are undirected. The implementation might use a networkx <code>MultiDiGraph</code>, with arrows in both directions for undirected edges (then DAG instances are actual subgraphs of the pattern) or an <code>UndirectedGraph</code> + a list of v-structures, depending on which performs better. Add methods to get DAG pattern from <code>DirectedGraph</code> and to construct <code>DirectedGraph</code> from DAG pattern (there is an easy algorithm for that in [<a href="http://www.cs.technion.ac.il/~dang/books/Learning%20Bayesian%20Networks&amp;#40;Neapolitan,%20Richard&amp;#41;.pdf">LBN04</a>, etc.]).</p>
