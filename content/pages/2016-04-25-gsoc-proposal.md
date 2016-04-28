@@ -4,7 +4,7 @@ The following project description is taken from my proposal _Structure learning 
 
 # The Project
 
-I will introduce methods to pgmpy to select Bayesian models based on data sets. First, I will implement basic support for score-based and constraint-based structure learning. Second, I will add common enhancements to the score-based approach, including local score computation + memoization and tabu lists. Finally, I will implement the MMHC algorithm, which combines the score-based and the constraint-based method.
+I will introduce methods to pgmpy to select Bayesian models based on data sets. First, I'll implement basic support for score-based and constraint-based structure learning. Second, I will add common enhancements to the score-based approach, including local score computation + memoization and tabu lists. Finally, I will implement the MMHC algorithm, which combines the score-based and the constraint-based method.
 
 ## Motivation
 
@@ -22,7 +22,7 @@ Techniques for structure learning differ for Bayesian networks and Markov networ
 
 I will add two model selection techniques to pgmpy: score-based model selection and constraint-based model selection. In addition to these basic approaches, I will implement a combination of the two, the MMHC algorithm proposed in [[Tsamardinos et al.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.4729&rep=rep1&type=pdf), 2006].
 
-Below, I briefly describe the score-based and constraint-based approach, as well as the MMHC algorithm. I then provide a timeline and implementation plan.
+Below, I briefly describe the score-based and constraint-based approach, as well as the MMHC algorithm.
 
 #### Score-based model selection
 
@@ -42,12 +42,14 @@ Importantly, these scores _decompose_, i.e. they can be computed locally for eac
 The search space of DAGs or DAG patterns is super-exponential in the number of variables and the typical scoring functions allow for local maxima. The first property makes exhaustive search intractable for all but very small networks, the second prohibits efficient local optimization algorithms to always find the optimal structure. Thus, all interesting search strategies are heuristic.
 
 I want to implement the following heuristic search strategies:
+
 - Greedy Equivalence Search for DAGs and DAG patterns
 - First ascent hill climbing for DAGs (see [PGM09, page 814f]), with enhancements:
   - Use tabu lists to ensure that new structures are explored
   - Use score decomposition effectively
 
-For the sake of completeness, I will also add:
+And for the sake of completeness:
+
   - Exhaustive search for DAGs and DAG patterns
 
 
@@ -62,13 +64,14 @@ There are polynomial-time algorithms for model construction from a set of indepe
 #### The MMHC algorithm
 
 The MMHC algorithm combines the constraint-based and score-based method effectively. The authors suggest in [[Tsamardinos et al](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.106.4729&rep=rep1&type=pdf), 2006] that it performs very well against other state-of-the-art structure finding algorithms. At the same time, it is not too difficult to implement. It has two basic steps:
-Learn undirected graph skeleton using independence tests + constraint-based construction procedure
-Orient edges using score-based optimization with Bayesian score + modified hill-climbing search
-For the implementation, I will follow the pseudo code specification in the paper (Algorithm 1, 2 and 3).
+
+- Learn undirected graph skeleton using independence tests + constraint-based construction procedure
+- Orient edges using score-based optimization with Bayesian score + modified hill-climbing search
+
 
 # Timeline
 
-The GSoC period shall be structured in 6 bi-weekly milestones. I will begin each milestone with a discussion post on the GSoC blog.
+The GSoC period will be structured in 6 bi-weekly milestones. Each milestone begins with a discussion post on the GSoC blog.
 
 ## Milestone 1: Scoring methods
 
