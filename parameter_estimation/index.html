@@ -27,7 +27,7 @@
 <meta property="og:url" content="http://pgmpy.chrisittner.de"/>
 <meta property="og:image" content="http://pgmpy.readthedocs.org/en/latest/_images/logo.png">
 
-  <title>Structure Learning for pgmpy &ndash; Authors</title>
+  <title>Structure Learning for pgmpy &ndash; Category: parameter_estimation</title>
 
   <style>
     aside nav > ul > li { text-transform: none !important; }
@@ -61,14 +61,34 @@
 
 <article>
   <header>
-    <h1>Authors</h1>
+    <h2><a href="http://pgmpy.chrisittner.de/2016/08/06/bayesian-parameter-estimation-for-bns.html#bayesian-parameter-estimation-for-bns">Bayesian Parameter Estimation for BNs</a></h2>
+    <p>
+      Posted on Sat 06 August 2016 in <a href="http://pgmpy.chrisittner.de/parameter_estimation/">parameter_estimation</a>
+    </p>
   </header>
   <div>
-    <ul class="list">
-      <li><a href="http://pgmpy.chrisittner.de/">Chris Ittner</a> (3)</li>
-    </ul>
+      <p>Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables).</p>
+<p>The Bayesian approach is, in practice, very similar to the ML case.
+Both involves counting how often each state of the variable obtains in the data, conditional of the parents state.
+I ...</p>
+      <a class="btn" href="http://pgmpy.chrisittner.de/2016/08/06/bayesian-parameter-estimation-for-bns.html#bayesian-parameter-estimation-for-bns">Continue reading</a>
+  </div>
+  <hr />
+</article>
+<article>
+  <header>
+    <h2><a href="http://pgmpy.chrisittner.de/2016/05/18/mle-parameter-estimation-for-bns.html#mle-parameter-estimation-for-bns">MLE Parameter Estimation for BNs</a></h2>
+    <p>
+      Posted on Wed 18 May 2016 in <a href="http://pgmpy.chrisittner.de/parameter_estimation/">parameter_estimation</a>
+    </p>
+  </header>
+  <div>
+      <p>At the moment pgmpy supports Maximum Likelihood Estimation (MLE) to estimate the conditional probability tables (CPTs) for the variables of a Bayesian Network, given some data set. In my first PR, I’ll refactor the current MLE parameter estimation code to make it a bit nicer to use.
+This includes ...</p>
+      <a class="btn" href="http://pgmpy.chrisittner.de/2016/05/18/mle-parameter-estimation-for-bns.html#mle-parameter-estimation-for-bns">Continue reading</a>
   </div>
 </article>
+
 
     <footer>
 <p>
@@ -92,5 +112,14 @@
 
 
 
-</body>
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Structure Learning for pgmpy ",
+  "url" : "http://pgmpy.chrisittner.de",
+  "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
+  "description": "A GSoC blog about Bayesian Network Structure Learning with pgmpy"
+}
+</script></body>
 </html>
