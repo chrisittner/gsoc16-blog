@@ -75,59 +75,53 @@ I thus factored out &lt;code&gt;state_count&lt;/code&gt;-method and put it the &
 MLE is basically done after taking and normalizing the state counts.
 For Bayesian Estimation (with dirichlet priors), one additionally specifies so-called &lt;code&gt;pseudo_counts&lt;/code&gt; for each variable state that encode prior beliefs. The state counts are then added to these virtual counts before normalization. My next PR will implement &lt;code&gt;estimators.BayesianEstimator&lt;/code&gt; to compute the CPD parameters for a &lt;code&gt;BayesianModel&lt;/code&gt;, given data.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Update&lt;/strong&gt;: &lt;a href="https://github.com/pgmpy/pgmpy/pull/696"&gt;#696&lt;/a&gt; has been merged and also added basic support for missing data.&lt;/p&gt;
-&lt;p&gt;```python&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;blockquote&gt;
-&lt;blockquote&gt;
-&lt;p&gt;import pandas as pd
-from pgmpy.models import BayesianModel
-from pgmpy.estimators import BayesianEstimator
-data = pd.DataFrame(data={‘A’: [0, 0, 1], ‘B’: [0, 1, 0], ‘C’: [1, 1, 0]})
-model = BayesianModel([(‘A’, ‘C’), (‘B’, ‘C’)])
-estimator = BayesianEstimator(model, data)
-print(estimator.estimate_cpd(‘A’, prior_type=”dirichlet”, pseudo_counts=[1, 1]))
-╒══════╤═════╕
-│ A(0) │ 0.6 │
-├──────┼─────┤
-│ A(1) │ 0.4 │
-╘══════╧═════╛
-print(estimator.estimate_cpd(‘A’, prior_type=”dirichlet”, pseudo_counts=[2, 2]))
-╒══════╤══════════╕
-│ A(0) │ 0.571429 │
-├──────┼──────────┤
-│ A(1) │ 0.428571 │
-╘══════╧══════════╛
-print(estimator.estimate_cpd(‘A’, prior_type=”dirichlet”, pseudo_counts=[5, 5]))
-╒══════╤══════════╕
-│ A(0) │ 0.538462 │
-├──────┼──────────┤
-│ A(1) │ 0.461538 │
-╘══════╧══════════╛
-for cpd in estimator.get_parameters(prior_type=”BDeu”, equivalent_sample_size=10):
-…     print(cpd)
-…
-╒══════╤══════════╕
-│ A(0) │ 0.538462 │
-├──────┼──────────┤
-│ A(1) │ 0.461538 │
-╘══════╧══════════╛
-╒══════╤═════════════════════╤═════════════════════╤═════════════════════╤══════╕
-│ A    │ A(0)                │ A(0)                │ A(1)                │ A(1) │
-├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
-│ B    │ B(0)                │ B(1)                │ B(0)                │ B(1) │
-├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
-│ C(0) │ 0.35714285714285715 │ 0.35714285714285715 │ 0.6428571428571429  │ 0.5  │
-├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
-│ C(1) │ 0.6428571428571429  │ 0.6428571428571429  │ 0.35714285714285715 │ 0.5  │
-╘══════╧═════════════════════╧═════════════════════╧═════════════════════╧══════╛
-╒══════╤══════════╕
-│ B(0) │ 0.538462 │
-├──────┼──────────┤
-│ B(1) │ 0.461538 │
-╘══════╧══════════╛&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/blockquote&gt;
-&lt;/blockquote&gt;</summary></entry><entry><title>MLE Parameter Estimation for BNs</title><link href="http://pgmpy.chrisittner.de/2016/05/18/mle-parameter-estimation-for-bns.html" rel="alternate"></link><published>2016-05-18T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-05-18:2016/05/18/mle-parameter-estimation-for-bns.html</id><summary type="html">&lt;p&gt;At the moment pgmpy supports Maximum Likelihood Estimation (MLE) to estimate the conditional probability tables (CPTs) for the variables of a Bayesian Network, given some data set. In my first PR, I’ll refactor the current MLE parameter estimation code to make it a bit nicer to use.
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pgmpy.models&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;BayesianModel&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pgmpy.estimators&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;BayesianEstimator&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s1"&gt;'A'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="s1"&gt;'B'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="s1"&gt;'C'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]})&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BayesianModel&lt;/span&gt;&lt;span class="p"&gt;([(&lt;/span&gt;&lt;span class="s1"&gt;'A'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'C'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'B'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'C'&lt;/span&gt;&lt;span class="p"&gt;)])&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;estimator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BayesianEstimator&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;estimate_cpd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'A'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;prior_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"dirichlet"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pseudo_counts&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤═════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.6&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼─────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.4&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧═════╛&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;estimate_cpd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'A'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;prior_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"dirichlet"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pseudo_counts&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤══════════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.571429&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼──────────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.428571&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧══════════╛&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;estimate_cpd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'A'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;prior_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"dirichlet"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;pseudo_counts&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤══════════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.538462&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼──────────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.461538&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧══════════╛&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;cpd&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;estimator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_parameters&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;prior_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"BDeu"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;equivalent_sample_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;     &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cpd&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;...&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤══════════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.538462&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼──────────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.461538&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧══════════╛&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤═════════════════════╤═════════════════════╤═════════════════════╤══════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;    &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;    &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;                &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;C&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.35714285714285715&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.35714285714285715&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.6428571428571429&lt;/span&gt;  &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;  &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;C&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.6428571428571429&lt;/span&gt;  &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.6428571428571429&lt;/span&gt;  &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.35714285714285715&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;  &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧═════════════════════╧═════════════════════╧═════════════════════╧══════╛&lt;/span&gt;
+&lt;span class="err"&gt;╒══════╤══════════╕&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.538462&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;├──────┼──────────┤&lt;/span&gt;
+&lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt; &lt;span class="mf"&gt;0.461538&lt;/span&gt; &lt;span class="err"&gt;│&lt;/span&gt;
+&lt;span class="err"&gt;╘══════╧══════════╛&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</summary></entry><entry><title>MLE Parameter Estimation for BNs</title><link href="http://pgmpy.chrisittner.de/2016/05/18/mle-parameter-estimation-for-bns.html" rel="alternate"></link><published>2016-05-18T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-05-18:2016/05/18/mle-parameter-estimation-for-bns.html</id><summary type="html">&lt;p&gt;At the moment pgmpy supports Maximum Likelihood Estimation (MLE) to estimate the conditional probability tables (CPTs) for the variables of a Bayesian Network, given some data set. In my first PR, I’ll refactor the current MLE parameter estimation code to make it a bit nicer to use.
 This includes properly using pgmpy’s state name feature, removing the current limitation to &lt;code&gt;int&lt;/code&gt;-data and allowing to specify the states that each variable might take in advance, rather than reading it from the data. The latter will be necessary for Bayesian Parameter estimation, where non-occurring states get nonzero probabilities.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Update:&lt;/strong&gt; &lt;a href="https://github.com/pgmpy/pgmpy/pull/694"&gt;#694&lt;/a&gt; has been merged, and &lt;code&gt;MaximumLikelihoodEstimator&lt;/code&gt; now supports the above features, including non-numeric variables:&lt;/p&gt;
 &lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
