@@ -75,7 +75,7 @@ Both involves counting how often each state of the variable obtains in the data,
 I thus factored out <code>state_count</code>-method and put it the <code>estimators.BaseEstimator</code> class from which all estimators inherit.
 MLE is basically done after taking and normalizing the state counts.
 For Bayesian Estimation (with dirichlet priors), one additionally specifies so-called <code>pseudo_counts</code> for each variable state that encode prior beliefs. The state counts are then added to these virtual counts before normalization. My next PR will implement <code>estimators.BayesianEstimator</code> to compute the CPD parameters for a <code>BayesianModel</code>, given data.</p>
-<p><strong>Update</strong>: <a href="https://github.com/pgmpy/pgmpy/pull/696">#696</a> has been merged and also added basic support for missing data.</p>
+<p><strong>Update</strong>: <a href="https://github.com/pgmpy/pgmpy/pull/696">#696</a> has been merged and also added basic support for missing data. Bayesian parameter estimation is now working:</p>
 <div class="codehilite"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pgmpy.models</span> <span class="kn">import</span> <span class="n">BayesianModel</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">BayesianEstimator</span>
