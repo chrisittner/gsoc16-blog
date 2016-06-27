@@ -4,7 +4,71 @@ It comes with two ingredients:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The &lt;code&gt;StructureScore&lt;/code&gt;-Class and its subclasses &lt;code&gt;BayesianScore&lt;/code&gt; and &lt;code&gt;BICScore&lt;/code&gt;. They are initialized with a data set and provide a &lt;code&gt;score&lt;/code&gt;-method to compute how well a given &lt;code&gt;BayesianModel&lt;/code&gt; can be fitted to the data, according to different criteria. Since those scores are decomposable for BNs, a &lt;code&gt;local_score&lt;/code&gt;-method is also exposed for node-by-node computation.&lt;/li&gt;
 &lt;li&gt;The &lt;code&gt;StructureSearch&lt;/code&gt;-Class and its subclasses &lt;code&gt;ExhaustiveSearch&lt;/code&gt; and &lt;code&gt;GradientDescentSearch&lt;/code&gt;. They are initialized with a &lt;code&gt;StructureScore&lt;/code&gt;-instance and optimize that score over all &lt;code&gt;BayesianModel&lt;/code&gt;s. The latter subclass has a number of optional search enhancements.&lt;/li&gt;
-&lt;/ul&gt;</summary></entry><entry><title>Bayesian Parameter Estimation for BNs</title><link href="http://pgmpy.chrisittner.de/2016/06/10/bayesian-parameter-estimation-for-bns.html" rel="alternate"></link><published>2016-06-10T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-06-10:2016/06/10/bayesian-parameter-estimation-for-bns.html</id><summary type="html">&lt;p&gt;Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables).&lt;/p&gt;
+&lt;/ul&gt;
+&lt;p&gt;So far &lt;code&gt;BayesianScore&lt;/code&gt; supports BDeu and K2 priors, I’ll think for a good interface to specify other prior weights.
+With K2 priors the score is given by the following form:&lt;/p&gt;
+&lt;div class="math"&gt;$$score^{K2}_D(m) = \log(P(m)) + \sum_{X\in nodes(m)} local\_score^{K2}_D(X, parents_m(X))$$&lt;/div&gt;
+&lt;p&gt;where &lt;span class="math"&gt;\(P(m)\)&lt;/span&gt; is an optional structure prior that is quite negligible in practice. &lt;span class="math"&gt;\(local\_score^{K2}\)&lt;/span&gt; is computed for each node as follows:&lt;/p&gt;
+&lt;div class="math"&gt;$$local\_score^{K2}_D(X, P_X) = \sum_{j=1}^{q(P_X)} (\log(\frac{(r-1)!}{(N_j+r-1)!}) + \sum_{k=1}^r \log(N_{jk}!))$$&lt;/div&gt;
+&lt;p&gt;Where &lt;span class="math"&gt;\(r\)&lt;/span&gt; is the cardinality of the variable &lt;span class="math"&gt;\(X\)&lt;/span&gt;, &lt;span class="math"&gt;\(q(P_X)\)&lt;/span&gt; is the product of the cardinalities of the parents of &lt;span class="math"&gt;\(X\)&lt;/span&gt; (= the possible states of &lt;span class="math"&gt;\(P_X\)&lt;/span&gt;) and &lt;span class="math"&gt;\(N_{jk}\)&lt;/span&gt; is the number of times that variable &lt;span class="math"&gt;\(X\)&lt;/span&gt; is in state &lt;span class="math"&gt;\(k\)&lt;/span&gt; while parents are in state &lt;span class="math"&gt;\(j\)&lt;/span&gt; in the data sample. Finally, &lt;span class="math"&gt;\(N_j:=\sum_{k=1}^r N_{jk}\)&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;PR will follow shortly.&lt;/p&gt;
+&lt;script type="text/javascript"&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' &amp;&amp; location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</summary></entry><entry><title>Bayesian Parameter Estimation for BNs</title><link href="http://pgmpy.chrisittner.de/2016/06/10/bayesian-parameter-estimation-for-bns.html" rel="alternate"></link><published>2016-06-10T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-06-10:2016/06/10/bayesian-parameter-estimation-for-bns.html</id><summary type="html">&lt;p&gt;Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables).&lt;/p&gt;
 &lt;p&gt;The Bayesian approach is, in practice, very similar to the ML case.
 Both involves counting how often each state of the variable obtains in the data, conditional of the parents state.
 I thus factored out &lt;code&gt;state_count&lt;/code&gt;-method and put it the &lt;code&gt;estimators.BaseEstimator&lt;/code&gt; class from which all estimators inherit.

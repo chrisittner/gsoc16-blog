@@ -75,6 +75,70 @@ It comes with two ingredients:</p>
 <li>The <code>StructureScore</code>-Class and its subclasses <code>BayesianScore</code> and <code>BICScore</code>. They are initialized with a data set and provide a <code>score</code>-method to compute how well a given <code>BayesianModel</code> can be fitted to the data, according to different criteria. Since those scores are decomposable for BNs, a <code>local_score</code>-method is also exposed for node-by-node computation.</li>
 <li>The <code>StructureSearch</code>-Class and its subclasses <code>ExhaustiveSearch</code> and <code>GradientDescentSearch</code>. They are initialized with a <code>StructureScore</code>-instance and optimize that score over all <code>BayesianModel</code>s. The latter subclass has a number of optional search enhancements.</li>
 </ul>
+<p>So far <code>BayesianScore</code> supports BDeu and K2 priors, I’ll think for a good interface to specify other prior weights.
+With K2 priors the score is given by the following form:</p>
+<div class="math">$$score^{K2}_D(m) = \log(P(m)) + \sum_{X\in nodes(m)} local\_score^{K2}_D(X, parents_m(X))$$</div>
+<p>where <span class="math">\(P(m)\)</span> is an optional structure prior that is quite negligible in practice. <span class="math">\(local\_score^{K2}\)</span> is computed for each node as follows:</p>
+<div class="math">$$local\_score^{K2}_D(X, P_X) = \sum_{j=1}^{q(P_X)} (\log(\frac{(r-1)!}{(N_j+r-1)!}) + \sum_{k=1}^r \log(N_{jk}!))$$</div>
+<p>Where <span class="math">\(r\)</span> is the cardinality of the variable <span class="math">\(X\)</span>, <span class="math">\(q(P_X)\)</span> is the product of the cardinalities of the parents of <span class="math">\(X\)</span> (= the possible states of <span class="math">\(P_X\)</span>) and <span class="math">\(N_{jk}\)</span> is the number of times that variable <span class="math">\(X\)</span> is in state <span class="math">\(k\)</span> while parents are in state <span class="math">\(j\)</span> in the data sample. Finally, <span class="math">\(N_j:=\sum_{k=1}^r N_{jk}\)</span>.</p>
+<p>PR will follow shortly.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
   </div>
   <div class="tag-cloud">
     <p>
