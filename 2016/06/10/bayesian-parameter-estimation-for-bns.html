@@ -82,46 +82,47 @@ For Bayesian Estimation (with dirichlet priors), one additionally specifies so-c
 <span class="o">&gt;&gt;&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">'A'</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">'B'</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">'C'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]})</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">model</span> <span class="o">=</span> <span class="n">BayesianModel</span><span class="p">([(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">)])</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">estimator</span> <span class="o">=</span> <span class="n">BayesianEstimator</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">estimate_cpd</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="n">prior_type</span><span class="o">=</span><span class="s2">"dirichlet"</span><span class="p">,</span> <span class="n">pseudo_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
-<span class="err">╒══════╤═════╕</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.6</span> <span class="err">│</span>
-<span class="err">├──────┼─────┤</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.4</span> <span class="err">│</span>
-<span class="err">╘══════╧═════╛</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">estimate_cpd</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="n">prior_type</span><span class="o">=</span><span class="s2">"dirichlet"</span><span class="p">,</span> <span class="n">pseudo_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
-<span class="err">╒══════╤══════════╕</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.571429</span> <span class="err">│</span>
-<span class="err">├──────┼──────────┤</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.428571</span> <span class="err">│</span>
-<span class="err">╘══════╧══════════╛</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">estimate_cpd</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="n">prior_type</span><span class="o">=</span><span class="s2">"dirichlet"</span><span class="p">,</span> <span class="n">pseudo_counts</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]))</span>
-<span class="err">╒══════╤══════════╕</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.538462</span> <span class="err">│</span>
-<span class="err">├──────┼──────────┤</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.461538</span> <span class="err">│</span>
-<span class="err">╘══════╧══════════╛</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">cpd</span> <span class="ow">in</span> <span class="n">estimator</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">(</span><span class="n">prior_type</span><span class="o">=</span><span class="s2">"BDeu"</span><span class="p">,</span> <span class="n">equivalent_sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">cpd</span><span class="p">)</span>
-<span class="o">...</span>
-<span class="err">╒══════╤══════════╕</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.538462</span> <span class="err">│</span>
-<span class="err">├──────┼──────────┤</span>
-<span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.461538</span> <span class="err">│</span>
-<span class="err">╘══════╧══════════╛</span>
-<span class="err">╒══════╤═════════════════════╤═════════════════════╤═════════════════════╤══════╕</span>
-<span class="err">│</span> <span class="n">A</span>    <span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>                <span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>                <span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="err">│</span> <span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span>
-<span class="err">├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤</span>
-<span class="err">│</span> <span class="n">B</span>    <span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>                <span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                <span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>                <span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span>
-<span class="err">├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤</span>
-<span class="err">│</span> <span class="n">C</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.35714285714285715</span> <span class="err">│</span> <span class="mf">0.35714285714285715</span> <span class="err">│</span> <span class="mf">0.6428571428571429</span>  <span class="err">│</span> <span class="mf">0.5</span>  <span class="err">│</span>
-<span class="err">├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤</span>
-<span class="err">│</span> <span class="n">C</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.6428571428571429</span>  <span class="err">│</span> <span class="mf">0.6428571428571429</span>  <span class="err">│</span> <span class="mf">0.35714285714285715</span> <span class="err">│</span> <span class="mf">0.5</span>  <span class="err">│</span>
-<span class="err">╘══════╧═════════════════════╧═════════════════════╧═════════════════════╧══════╛</span>
-<span class="err">╒══════╤══════════╕</span>
-<span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.538462</span> <span class="err">│</span>
-<span class="err">├──────┼──────────┤</span>
-<span class="err">│</span> <span class="n">B</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="err">│</span> <span class="mf">0.461538</span> <span class="err">│</span>
-<span class="err">╘══════╧══════════╛</span>
+</pre></div>
+<div class="codehilite"><pre><span></span>&gt;&gt;&gt; print(estimator.estimate_cpd('A', prior_type="dirichlet", pseudo_counts=[1, 1]))
+╒══════╤═════╕
+│ A(0) │ 0.6 │
+├──────┼─────┤
+│ A(1) │ 0.4 │
+╘══════╧═════╛
+&gt;&gt;&gt; print(estimator.estimate_cpd('A', prior_type="dirichlet", pseudo_counts=[2, 2]))
+╒══════╤══════════╕
+│ A(0) │ 0.571429 │
+├──────┼──────────┤
+│ A(1) │ 0.428571 │
+╘══════╧══════════╛
+&gt;&gt;&gt; print(estimator.estimate_cpd('A', prior_type="dirichlet", pseudo_counts=[5, 5]))
+╒══════╤══════════╕
+│ A(0) │ 0.538462 │
+├──────┼──────────┤
+│ A(1) │ 0.461538 │
+╘══════╧══════════╛
+&gt;&gt;&gt; for cpd in estimator.get_parameters(prior_type="BDeu", equivalent_sample_size=10):
+...     print(cpd)
+...
+╒══════╤══════════╕
+│ A(0) │ 0.538462 │
+├──────┼──────────┤
+│ A(1) │ 0.461538 │
+╘══════╧══════════╛
+╒══════╤═════════════════════╤═════════════════════╤═════════════════════╤══════╕
+│ A    │ A(0)                │ A(0)                │ A(1)                │ A(1) │
+├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
+│ B    │ B(0)                │ B(1)                │ B(0)                │ B(1) │
+├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
+│ C(0) │ 0.35714285714285715 │ 0.35714285714285715 │ 0.6428571428571429  │ 0.5  │
+├──────┼─────────────────────┼─────────────────────┼─────────────────────┼──────┤
+│ C(1) │ 0.6428571428571429  │ 0.6428571428571429  │ 0.35714285714285715 │ 0.5  │
+╘══════╧═════════════════════╧═════════════════════╧═════════════════════╧══════╛
+╒══════╤══════════╕
+│ B(0) │ 0.538462 │
+├──────┼──────────┤
+│ B(1) │ 0.461538 │
+╘══════╧══════════╛
 </pre></div>
   </div>
   <div class="tag-cloud">
