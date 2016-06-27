@@ -18,11 +18,11 @@
   <meta name="robots" content="index, follow" />
 
 <meta name="author" content="Chris Ittner" />
-<meta name="description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..." />
+<meta name="description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. It comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide a score-method to compute how well ..." />
 <meta name="keywords" content="">
 <meta property="og:site_name" content="Structure Learning for pgmpy"/>
 <meta property="og:title" content="Score-based Structure Learning BNs"/>
-<meta property="og:description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..."/>
+<meta property="og:description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. It comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide a score-method to compute how well ..."/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html"/>
 <meta property="og:type" content="article"/>
@@ -70,9 +70,9 @@
   </header>
   <div>
     <p>With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks.
-This comes with two ingredients:</p>
+It comes with two ingredients:</p>
 <ul>
-<li>The <code>StructureScore</code>-Class and its subclasses <code>BayesianScore</code> and <code>BICScore</code>. They are initialized with a data set and provide methods to compute how well a given <code>BayesianModel</code> can be fitted to the data, according to different criteria.</li>
+<li>The <code>StructureScore</code>-Class and its subclasses <code>BayesianScore</code> and <code>BICScore</code>. They are initialized with a data set and provide a <code>score</code>-method to compute how well a given <code>BayesianModel</code> can be fitted to the data, according to different criteria. Since those scores are decomposable for BNs, a <code>local_score</code>-method is also exposed for node-by-node computation.</li>
 <li>The <code>StructureSearch</code>-Class and its subclasses <code>ExhaustiveSearch</code> and <code>GradientDescentSearch</code>. They are initialized with a <code>StructureScore</code>-instance and optimize that score over all <code>BayesianModel</code>s. The latter subclass has a number of optional search enhancements.</li>
 </ul>
   </div>
@@ -119,7 +119,7 @@ This comes with two ingredients:</p>
   },
   "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
   "url": "http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html",
-  "description": "With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..."
+  "description": "With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. It comes with two ingredients: The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide a score-method to compute how well ..."
 }
 </script></body>
 </html>
