@@ -18,20 +18,20 @@
   <meta name="robots" content="index, follow" />
 
 <meta name="author" content="Chris Ittner" />
-<meta name="description" content="Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables). The Bayesian approach is, in practice, very similar to the ML case. Both involves counting how often each state of the variable obtains in the data, conditional of the parents state. I ..." />
+<meta name="description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: - The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..." />
 <meta name="keywords" content="">
 <meta property="og:site_name" content="Structure Learning for pgmpy"/>
-<meta property="og:title" content="Bayesian Parameter Estimation for BNs"/>
-<meta property="og:description" content="Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables). The Bayesian approach is, in practice, very similar to the ML case. Both involves counting how often each state of the variable obtains in the data, conditional of the parents state. I ..."/>
+<meta property="og:title" content="Score-based Structure Learning BNs"/>
+<meta property="og:description" content="With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: - The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..."/>
 <meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="http://pgmpy.chrisittner.de/2016/06/10/bayesian-parameter-estimation-for-bns.html"/>
+<meta property="og:url" content="http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html"/>
 <meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-06-10 00:00:00+02:00"/>
+<meta property="article:published_time" content="2016-06-24 00:00:00+02:00"/>
 <meta property="article:modified_time" content=""/>
 <meta property="article:author" content="http://pgmpy.chrisittner.de/">
-<meta property="article:section" content="parameter_estimation"/>
+<meta property="article:section" content="score_based"/>
 <meta property="og:image" content="http://pgmpy.readthedocs.org/en/latest/_images/logo.png">
-  <title>Structure Learning for pgmpy &ndash; Bayesian Parameter Estimation for BNs</title>
+  <title>Structure Learning for pgmpy &ndash; Score-based Structure Learning BNs</title>
 
   <style>
     aside nav > ul > li { text-transform: none !important; }
@@ -65,17 +65,14 @@
 
 <article>
   <header>
-    <h1 id="bayesian-parameter-estimation-for-bns">Bayesian Parameter Estimation for BNs</h1>
-    <p>Posted on Fri 10 June 2016 in <a href="http://pgmpy.chrisittner.de/parameter_estimation/">parameter_estimation</a></p>
+    <h1 id="score-based-structure-learning-bns">Score-based Structure Learning BNs</h1>
+    <p>Posted on Fri 24 June 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a></p>
   </header>
   <div>
-    <p>Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables).</p>
-<p>The Bayesian approach is, in practice, very similar to the ML case.
-Both involves counting how often each state of the variable obtains in the data, conditional of the parents state.
-I thus factored out <code>state_count</code>-method and put it the <code>estimators.BaseEstimator</code> class from which all estimators inherit.
-MLE is basically done after taking and normalizing the state counts.
-For Bayesian Estimation (with dirichlet priors), one additionally specifies so-called <code>pseudo_counts</code> for each variable state that encode prior beliefs. The state counts are then added to these virtual counts before normalization. My next PR will implement <code>estimators.BayesianEstimator</code> to compute the CPD parameters for a <code>BayesianModel</code>, given data.</p>
-<p><strong>Update</strong>: <a href="https://github.com/pgmpy/pgmpy/pull/696">#696</a> has been merged.</p>
+    <p>With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks.
+This comes with two ingredients:
+ - The <code>StructureScore</code>-Class and its subclasses <code>BayesianScore</code> and <code>BICScore</code>. They are initialized with a data set and provide methods to compute how well a given <code>BayesianModel</code> can be fitted to the data, according to different criteria.
+ - The <code>StructureSearch</code>-Class and its subclasses <code>ExhaustiveSearch</code> and <code>GradientDescentSearch</code>. They are initialized with a <code>StructureScore</code>-instance and optimize that score over all <code>BayesianModel</code>s. The latter subclass has a number of optional search enhancements.</p>
   </div>
   <div class="tag-cloud">
     <p>
@@ -109,9 +106,9 @@ For Bayesian Estimation (with dirichlet priors), one additionally specifies so-c
 {
   "@context": "http://schema.org",
   "@type": "BlogPosting",
-  "name": "Bayesian Parameter Estimation for BNs",
-  "headline": "Bayesian Parameter Estimation for BNs",
-  "datePublished": "2016-06-10 00:00:00+02:00",
+  "name": "Score-based Structure Learning BNs",
+  "headline": "Score-based Structure Learning BNs",
+  "datePublished": "2016-06-24 00:00:00+02:00",
   "dateModified": "",
   "author": {
     "@type": "Person",
@@ -119,8 +116,8 @@ For Bayesian Estimation (with dirichlet priors), one additionally specifies so-c
     "url": "http://pgmpy.chrisittner.de/"
   },
   "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
-  "url": "http://pgmpy.chrisittner.de/2016/06/10/bayesian-parameter-estimation-for-bns.html",
-  "description": "Now that ML Parameter Estimation works well, I’ve turned to Bayesian Parameter Estimation (all for discrete variables). The Bayesian approach is, in practice, very similar to the ML case. Both involves counting how often each state of the variable obtains in the data, conditional of the parents state. I ..."
+  "url": "http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html",
+  "description": "With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks. This comes with two ingredients: - The StructureScore-Class and its subclasses BayesianScore and BICScore. They are initialized with a data set and provide methods to compute how well a given ..."
 }
 </script></body>
 </html>
