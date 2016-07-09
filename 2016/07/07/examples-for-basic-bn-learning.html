@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/pygments.min.css">
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/font-awesome.min.css">
+
+
+    <link href="http://pgmpy.chrisittner.de/feed.rss" type="application/atom+xml" rel="alternate" title="Structure Learning for pgmpy Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+
+<meta name="author" content="Chris Ittner" />
+<meta name="description" content="I’ll soon finish basic score-based structure estimation for BayesianModels. Below is the current state of my PR, with two examples. Changes in pgmpy/estimators/ I rearranged the estimator classes to inherit from each other like this: . MaximumLikelihoodEstimator / ParameterEstimator -- BayesianEstimator / BaseEstimator ExhaustiveSearch | \ / | StructureEstimator -- HillClimbSearch | \ | ConstraintBasedEstimator | | | BayesianScore | / StructureScore -- BicScore BaseEstimator ..." />
+<meta name="keywords" content="">
+<meta property="og:site_name" content="Structure Learning for pgmpy"/>
+<meta property="og:title" content="Examples for basic BN learning,"/>
+<meta property="og:description" content="I’ll soon finish basic score-based structure estimation for BayesianModels. Below is the current state of my PR, with two examples. Changes in pgmpy/estimators/ I rearranged the estimator classes to inherit from each other like this: . MaximumLikelihoodEstimator / ParameterEstimator -- BayesianEstimator / BaseEstimator ExhaustiveSearch | \ / | StructureEstimator -- HillClimbSearch | \ | ConstraintBasedEstimator | | | BayesianScore | / StructureScore -- BicScore BaseEstimator ..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://pgmpy.chrisittner.de/2016/07/07/examples-for-basic-bn-learning.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-07-07 00:00:00+02:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://pgmpy.chrisittner.de/">
+<meta property="article:section" content="score_based"/>
+<meta property="og:image" content="http://pgmpy.readthedocs.org/en/latest/_images/logo.png">
+  <title>Structure Learning for pgmpy &ndash; Examples for basic BN learning,</title>
+
+  <style>
+    aside nav > ul > li { text-transform: none !important; }
+    aside > div > a > img { border-radius:0; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://pgmpy.chrisittner.de">
+        <img src="http://pgmpy.readthedocs.org/en/latest/_images/logo.png" alt="Learning BN Structure" title="Learning BN Structure">
+      </a>
+      <h1><a href="http://pgmpy.chrisittner.de">Learning BN Structure</a></h1>
+      <p>A GSoC blog for pgmpy</p>
+      <nav>
+        <ul class="list">
+          <li><a href="http://pgmpy.chrisittner.de">Blog</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/gsoc-proposal.html#gsoc-proposal">GSoC Project Outline</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-the-project.html#about-the-project">About the Project</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-me.html#about-me">About Me</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-envelope-o" href="mailto:pgmpy-gsoc@chrisittner.de" target="_blank"><i class="fa fa-envelope-o"></i></a></li>
+        <li><a class="sc-rss" href="/feed.rss" target="_blank"><i class="fa fa-rss"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/chrisittner" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="examples-for-basic-bn-learning">Examples for basic BN learning,</h1>
+    <p>Posted on Thu 07 July 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a></p>
+  </header>
+  <div>
+    <p>I’ll soon finish basic score-based structure estimation for <code>BayesianModel</code>s. Below is the current state of my PR, with two examples.</p>
+<h2 id="changes-in-pgmpyestimators">Changes in <code>pgmpy/estimators/</code></h2>
+<p>I rearranged the estimator classes to inherit from each other like this:</p>
+<div class="codehilite"><pre><span></span>.                                    MaximumLikelihoodEstimator
+                                   /
+                ParameterEstimator -- BayesianEstimator
+              /
+BaseEstimator                        ExhaustiveSearch
+            | \                    /
+            |   StructureEstimator -- HillClimbSearch
+            |                      \
+            |                        ConstraintBasedEstimator
+            |
+            |
+            |                BayesianScore
+            |              /
+            StructureScore -- BicScore
+</pre></div>
+<p><code>BaseEstimator</code> takes a data set and optionally <code>state_names</code> and a flag for how to handle missing values. <code>ParameterEstimator</code> and its subclasses additionally take a model. All <code>*Search</code>-classes are initialized with a <code>StructureScore</code>-instance (or by default <code>BayesianScore</code>) in addition to the data set.</p>
+<h2 id="example">Example</h2>
+<p>Given a data sets with <code>5</code> or less variables, we can search through all <code>BayesianModels</code> and find the best-scoring one, using <code>ExhaustiveSearch</code> (currently 5 vars already takes a few minutes, but can be made faster):</p>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">ExhaustiveSearch</span>
+
+<span class="c1"># create random data sample with 3 variables, where B and C are identical:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s1">'AB'</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'C'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'B'</span><span class="p">]</span>
+
+<span class="n">est</span> <span class="o">=</span> <span class="n">ExhaustiveSearch</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">best_model</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">estimate</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">best_model</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="n">best_model</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">all scores:'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">est</span><span class="o">.</span><span class="n">all_scores</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+</pre></div>
+<p>The example first prints nodes and edges of the best-fitting model and then the scores for all possible  <code>BayesianModel</code>s for this data set:</p>
+<div class="codehilite"><pre><span></span><span class="k">['A','B','C']</span>
+<span class="k">[('B','C')]</span>
+
+<span class="err">all</span> <span class="err">scores:</span>
+<span class="err">-24243.15030635083</span> <span class="k">[('A', 'C'), ('A', 'B')]</span>
+<span class="err">-24243.149854387288</span> <span class="k">[('A', 'B'), ('C', 'A')]</span>
+<span class="err">-24243.149854387288</span> <span class="k">[('A', 'C'), ('B', 'A')]</span>
+<span class="err">-24211.96205284525</span> <span class="k">[('A', 'B')]</span>
+<span class="err">-24211.96205284525</span> <span class="k">[('A', 'C')]</span>
+<span class="err">-24211.961600881707</span> <span class="k">[('B', 'A')]</span>
+<span class="err">-24211.961600881707</span> <span class="k">[('C', 'A')]</span>
+<span class="err">-24211.961600881707</span> <span class="k">[('C', 'A'), ('B', 'A')]</span>
+<span class="err">-24180.77379933967</span> <span class="k">[]</span>
+<span class="err">-16603.134367431743</span> <span class="k">[('A', 'C'), ('A', 'B'), ('B', 'C')]</span>
+<span class="err">-16603.13436743174</span> <span class="k">[('A', 'C'), ('A', 'B'), ('C', 'B')]</span>
+<span class="err">-16603.133915468195</span> <span class="k">[('A', 'B'), ('C', 'A'), ('C', 'B')]</span>
+<span class="err">-16603.133915468195</span> <span class="k">[('A', 'C'), ('B', 'A'), ('B', 'C')]</span>
+<span class="err">-16571.946113926162</span> <span class="k">[('A', 'C'), ('B', 'C')]</span>
+<span class="err">-16571.94611392616</span> <span class="k">[('A', 'B'), ('C', 'B')]</span>
+<span class="err">-16274.052597732147</span> <span class="k">[('A', 'B'), ('B', 'C')]</span>
+<span class="err">-16274.052597732145</span> <span class="k">[('A', 'C'), ('C', 'B')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('B', 'A'), ('B', 'C')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('C', 'A'), ('B', 'C')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('C', 'B'), ('B', 'A')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('C', 'A'), ('C', 'B')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('C', 'A'), ('B', 'A'), ('B', 'C')]</span>
+<span class="err">-16274.0521457686</span> <span class="k">[('C', 'A'), ('C', 'B'), ('B', 'A')]</span>
+<span class="err">-16242.864344226566</span> <span class="k">[('B', 'C')]</span>
+<span class="err">-16242.864344226564</span> <span class="k">[('C', 'B')]</span>
+</pre></div>
+<p>There is a big jump in score between those models where <code>B</code> and <code>C</code> influence each other (~<code>-16274</code>) and the rest (~<code>-24211</code>), as expected since they are correlated.</p>
+<h2 id="example-2">Example 2</h2>
+<p>I tried the same with the Kaggle titanic data set:</p>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">ExhaustiveSearch</span>
+
+<span class="c1"># data_link - "https://www.kaggle.com/c/titanic/download/train.csv"</span>
+<span class="n">titanic_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'testdata/titanic_train.csv'</span><span class="p">)</span>
+<span class="n">titanic_data</span> <span class="o">=</span> <span class="n">titanic_data</span><span class="p">[[</span><span class="s2">"Survived"</span><span class="p">,</span> <span class="s2">"Sex"</span><span class="p">,</span> <span class="s2">"Pclass"</span><span class="p">]]</span>
+
+<span class="n">est</span> <span class="o">=</span> <span class="n">ExhaustiveSearch</span><span class="p">(</span><span class="n">titanic_data</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">est</span><span class="o">.</span><span class="n">all_scores</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+</pre></div>
+<p>Output:</p>
+<div class="codehilite"><pre><span></span>-2072.9132364404695 []
+-2069.071694164769 [('Pclass', 'Sex')]
+-2069.0144197068785 [('Sex', 'Pclass')]
+-2025.869489762676 [('Survived', 'Pclass')]
+-2025.8559302273054 [('Pclass', 'Survived')]
+-2022.0279474869753 [('Survived', 'Pclass'), ('Pclass', 'Sex')]
+-2022.0143879516047 [('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-2021.9571134937144 [('Sex', 'Pclass'), ('Pclass', 'Survived')]
+-2017.5258065853768 [('Survived', 'Pclass'), ('Sex', 'Pclass')]
+-1941.3075053892835 [('Survived', 'Sex')]
+-1941.2720031713893 [('Sex', 'Survived')]
+-1937.4304608956886 [('Sex', 'Survived'), ('Pclass', 'Sex')]
+-1937.4086886556925 [('Survived', 'Sex'), ('Sex', 'Pclass')]
+-1937.3731864377983 [('Sex', 'Survived'), ('Sex', 'Pclass')]
+-1934.134485060888 [('Survived', 'Sex'), ('Pclass', 'Sex')]
+-1894.2637587114903 [('Survived', 'Sex'), ('Survived', 'Pclass')]
+-1894.2501991761196 [('Survived', 'Sex'), ('Pclass', 'Survived')]
+-1894.228256493596 [('Survived', 'Pclass'), ('Sex', 'Survived')]
+-1891.0630673606006 [('Sex', 'Survived'), ('Pclass', 'Survived')]
+-1887.2215250849 [('Sex', 'Survived'), ('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-1887.1642506270096 [('Sex', 'Survived'), ('Sex', 'Pclass'), ('Pclass', 'Survived')]
+-1887.0907383830947 [('Survived', 'Sex'), ('Survived', 'Pclass'), ('Pclass', 'Sex')]
+-1887.077178847724 [('Survived', 'Sex'), ('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-1885.9200755341908 [('Survived', 'Sex'), ('Survived', 'Pclass'), ('Sex', 'Pclass')]
+-1885.8845733162966 [('Survived', 'Pclass'), ('Sex', 'Survived'), ('Sex', 'Pclass')]
+</pre></div>
+<p>Here it didn’t work as I hoped. <code>[('Sex', 'Survived'), ('Pclass', 'Survived')]</code> has the best score among models with 2 or less edges, but every model with 3 edges scores better. I didn’t have a closer look at the dataset yet, but a weak dependency between <code>Sex</code> and <code>PClass</code> would explain this.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+    </p>
+  </div>
+</article>
+
+    <footer>
+<p>
+  &copy; Chris Ittner 2016 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Examples for basic BN learning,",
+  "headline": "Examples for basic BN learning,",
+  "datePublished": "2016-07-07 00:00:00+02:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Chris Ittner",
+    "url": "http://pgmpy.chrisittner.de/"
+  },
+  "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
+  "url": "http://pgmpy.chrisittner.de/2016/07/07/examples-for-basic-bn-learning.html",
+  "description": "I’ll soon finish basic score-based structure estimation for BayesianModels. Below is the current state of my PR, with two examples. Changes in pgmpy/estimators/ I rearranged the estimator classes to inherit from each other like this: . MaximumLikelihoodEstimator / ParameterEstimator -- BayesianEstimator / BaseEstimator ExhaustiveSearch | \ / | StructureEstimator -- HillClimbSearch | \ | ConstraintBasedEstimator | | | BayesianScore | / StructureScore -- BicScore BaseEstimator ..."
+}
+</script></body>
+</html>

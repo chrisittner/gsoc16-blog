@@ -1,9 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Structure Learning for pgmpy</title><link href="http://pgmpy.chrisittner.de/" rel="alternate"></link><link href="http://pgmpy.chrisittner.de/feed.rss" rel="self"></link><id>http://pgmpy.chrisittner.de/</id><updated>2016-06-24T00:00:00+02:00</updated><entry><title>Score-based Structure Learning BNs</title><link href="http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html" rel="alternate"></link><published>2016-06-24T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-06-24:2016/06/24/score-based-structure-learning-bns.html</id><summary type="html">&lt;p&gt;With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Structure Learning for pgmpy</title><link href="http://pgmpy.chrisittner.de/" rel="alternate"></link><link href="http://pgmpy.chrisittner.de/feed.rss" rel="self"></link><id>http://pgmpy.chrisittner.de/</id><updated>2016-07-07T00:00:00+02:00</updated><entry><title>Examples for basic BN learning,</title><link href="http://pgmpy.chrisittner.de/2016/07/07/examples-for-basic-bn-learning.html" rel="alternate"></link><published>2016-07-07T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-07-07:2016/07/07/examples-for-basic-bn-learning.html</id><summary type="html">&lt;p&gt;I’ll soon finish basic score-based structure estimation for &lt;code&gt;BayesianModel&lt;/code&gt;s. Below is the current state of my PR, with two examples.&lt;/p&gt;
+&lt;h2 id="changes-in-pgmpyestimators"&gt;Changes in &lt;code&gt;pgmpy/estimators/&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;I rearranged the estimator classes to inherit from each other like this:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;.                                    MaximumLikelihoodEstimator
+                                   /
+                ParameterEstimator -- BayesianEstimator
+              /
+BaseEstimator                        ExhaustiveSearch
+            | \                    /
+            |   StructureEstimator -- HillClimbSearch
+            |                      \
+            |                        ConstraintBasedEstimator
+            |
+            |
+            |                BayesianScore
+            |              /
+            StructureScore -- BicScore
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;BaseEstimator&lt;/code&gt; takes a data set and optionally &lt;code&gt;state_names&lt;/code&gt; and a flag for how to handle missing values. &lt;code&gt;ParameterEstimator&lt;/code&gt; and its subclasses additionally take a model. All &lt;code&gt;*Search&lt;/code&gt;-classes are initialized with a &lt;code&gt;StructureScore&lt;/code&gt;-instance (or by default &lt;code&gt;BayesianScore&lt;/code&gt;) in addition to the data set.&lt;/p&gt;
+&lt;h2 id="example"&gt;Example&lt;/h2&gt;
+&lt;p&gt;Given a data sets with &lt;code&gt;5&lt;/code&gt; or less variables, we can search through all &lt;code&gt;BayesianModels&lt;/code&gt; and find the best-scoring one, using &lt;code&gt;ExhaustiveSearch&lt;/code&gt; (currently 5 vars already takes a few minutes, but can be made faster):&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pgmpy.estimators&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ExhaustiveSearch&lt;/span&gt;
+
+&lt;span class="c1"&gt;# create random data sample with 3 variables, where B and C are identical:&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;np&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;randint&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5000&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'AB'&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'C'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'B'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;est&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ExhaustiveSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;best_model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;est&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;estimate&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;best_model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nodes&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;best_model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s1"&gt;all scores:'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;est&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;all_scores&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The example first prints nodes and edges of the best-fitting model and then the scores for all possible  &lt;code&gt;BayesianModel&lt;/code&gt;s for this data set:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;['A','B','C']&lt;/span&gt;
+&lt;span class="k"&gt;[('B','C')]&lt;/span&gt;
+
+&lt;span class="err"&gt;all&lt;/span&gt; &lt;span class="err"&gt;scores:&lt;/span&gt;
+&lt;span class="err"&gt;-24243.15030635083&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('A', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-24243.149854387288&lt;/span&gt; &lt;span class="k"&gt;[('A', 'B'), ('C', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-24243.149854387288&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('B', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-24211.96205284525&lt;/span&gt; &lt;span class="k"&gt;[('A', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-24211.96205284525&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-24211.961600881707&lt;/span&gt; &lt;span class="k"&gt;[('B', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-24211.961600881707&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-24211.961600881707&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A'), ('B', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-24180.77379933967&lt;/span&gt; &lt;span class="k"&gt;[]&lt;/span&gt;
+&lt;span class="err"&gt;-16603.134367431743&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('A', 'B'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16603.13436743174&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('A', 'B'), ('C', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-16603.133915468195&lt;/span&gt; &lt;span class="k"&gt;[('A', 'B'), ('C', 'A'), ('C', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-16603.133915468195&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('B', 'A'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16571.946113926162&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16571.94611392616&lt;/span&gt; &lt;span class="k"&gt;[('A', 'B'), ('C', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.052597732147&lt;/span&gt; &lt;span class="k"&gt;[('A', 'B'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.052597732145&lt;/span&gt; &lt;span class="k"&gt;[('A', 'C'), ('C', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('B', 'A'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('C', 'B'), ('B', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A'), ('C', 'B')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A'), ('B', 'A'), ('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16274.0521457686&lt;/span&gt; &lt;span class="k"&gt;[('C', 'A'), ('C', 'B'), ('B', 'A')]&lt;/span&gt;
+&lt;span class="err"&gt;-16242.864344226566&lt;/span&gt; &lt;span class="k"&gt;[('B', 'C')]&lt;/span&gt;
+&lt;span class="err"&gt;-16242.864344226564&lt;/span&gt; &lt;span class="k"&gt;[('C', 'B')]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;There is a big jump in score between those models where &lt;code&gt;B&lt;/code&gt; and &lt;code&gt;C&lt;/code&gt; influence each other (~&lt;code&gt;-16274&lt;/code&gt;) and the rest (~&lt;code&gt;-24211&lt;/code&gt;), as expected since they are correlated.&lt;/p&gt;
+&lt;h2 id="example-2"&gt;Example 2&lt;/h2&gt;
+&lt;p&gt;I tried the same with the Kaggle titanic data set:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pd&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;np&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pgmpy.estimators&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ExhaustiveSearch&lt;/span&gt;
+
+&lt;span class="c1"&gt;# data_link - "https://www.kaggle.com/c/titanic/download/train.csv"&lt;/span&gt;
+&lt;span class="n"&gt;titanic_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'testdata/titanic_train.csv'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;titanic_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;titanic_data&lt;/span&gt;&lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="s2"&gt;"Survived"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Sex"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Pclass"&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+
+&lt;span class="n"&gt;est&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ExhaustiveSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;titanic_data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;est&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;all_scores&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;score&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Output:&lt;/p&gt;
+&lt;div class="codehilite"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;-2072.9132364404695 []
+-2069.071694164769 [('Pclass', 'Sex')]
+-2069.0144197068785 [('Sex', 'Pclass')]
+-2025.869489762676 [('Survived', 'Pclass')]
+-2025.8559302273054 [('Pclass', 'Survived')]
+-2022.0279474869753 [('Survived', 'Pclass'), ('Pclass', 'Sex')]
+-2022.0143879516047 [('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-2021.9571134937144 [('Sex', 'Pclass'), ('Pclass', 'Survived')]
+-2017.5258065853768 [('Survived', 'Pclass'), ('Sex', 'Pclass')]
+-1941.3075053892835 [('Survived', 'Sex')]
+-1941.2720031713893 [('Sex', 'Survived')]
+-1937.4304608956886 [('Sex', 'Survived'), ('Pclass', 'Sex')]
+-1937.4086886556925 [('Survived', 'Sex'), ('Sex', 'Pclass')]
+-1937.3731864377983 [('Sex', 'Survived'), ('Sex', 'Pclass')]
+-1934.134485060888 [('Survived', 'Sex'), ('Pclass', 'Sex')]
+-1894.2637587114903 [('Survived', 'Sex'), ('Survived', 'Pclass')]
+-1894.2501991761196 [('Survived', 'Sex'), ('Pclass', 'Survived')]
+-1894.228256493596 [('Survived', 'Pclass'), ('Sex', 'Survived')]
+-1891.0630673606006 [('Sex', 'Survived'), ('Pclass', 'Survived')]
+-1887.2215250849 [('Sex', 'Survived'), ('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-1887.1642506270096 [('Sex', 'Survived'), ('Sex', 'Pclass'), ('Pclass', 'Survived')]
+-1887.0907383830947 [('Survived', 'Sex'), ('Survived', 'Pclass'), ('Pclass', 'Sex')]
+-1887.077178847724 [('Survived', 'Sex'), ('Pclass', 'Survived'), ('Pclass', 'Sex')]
+-1885.9200755341908 [('Survived', 'Sex'), ('Survived', 'Pclass'), ('Sex', 'Pclass')]
+-1885.8845733162966 [('Survived', 'Pclass'), ('Sex', 'Survived'), ('Sex', 'Pclass')]
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Here it didn’t work as I hoped. &lt;code&gt;[('Sex', 'Survived'), ('Pclass', 'Survived')]&lt;/code&gt; has the best score among models with 2 or less edges, but every model with 3 edges scores better. I didn’t have a closer look at the dataset yet, but a weak dependency between &lt;code&gt;Sex&lt;/code&gt; and &lt;code&gt;PClass&lt;/code&gt; would explain this.&lt;/p&gt;</summary></entry><entry><title>Score-based Structure Learning BNs</title><link href="http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html" rel="alternate"></link><published>2016-06-24T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-06-24:2016/06/24/score-based-structure-learning-bns.html</id><summary type="html">&lt;p&gt;With a bit of delay, I am now working on a basic PR for score-based structure estimation for Bayesian Networks.
 It comes with two ingredients:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The &lt;code&gt;StructureScore&lt;/code&gt;-Class and its subclasses &lt;code&gt;BayesianScore&lt;/code&gt; and &lt;code&gt;BICScore&lt;/code&gt;. They are initialized with a data set and provide a &lt;code&gt;score&lt;/code&gt;-method to compute how well a given &lt;code&gt;BayesianModel&lt;/code&gt; can be fitted to the data, according to different criteria. Since those scores are decomposable for BNs, a &lt;code&gt;local_score&lt;/code&gt;-method is also exposed for node-by-node computation.&lt;/li&gt;
-&lt;li&gt;The &lt;code&gt;StructureSearch&lt;/code&gt;-Class and its subclasses &lt;code&gt;ExhaustiveSearch&lt;/code&gt; and &lt;code&gt;GradientDescentSearch&lt;/code&gt;. They are initialized with a &lt;code&gt;StructureScore&lt;/code&gt;-instance and optimize that score over all &lt;code&gt;BayesianModel&lt;/code&gt;s. The latter subclass has a number of optional search enhancements.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;StructureSearch&lt;/code&gt;-Class and its subclasses &lt;code&gt;ExhaustiveSearch&lt;/code&gt; and &lt;code&gt;HCSearch&lt;/code&gt;. They are initialized with a &lt;code&gt;StructureScore&lt;/code&gt;-instance and optimize that score over all &lt;code&gt;BayesianModel&lt;/code&gt;s. The latter subclass has a number of 
+optional search enhancements.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;So far &lt;code&gt;BayesianScore&lt;/code&gt; supports BDeu and K2 priors, I’ll think for a good interface to specify other prior weights.
 With K2 priors the score is given by the following form:&lt;/p&gt;

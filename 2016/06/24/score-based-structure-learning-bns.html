@@ -73,7 +73,8 @@
 It comes with two ingredients:</p>
 <ul>
 <li>The <code>StructureScore</code>-Class and its subclasses <code>BayesianScore</code> and <code>BICScore</code>. They are initialized with a data set and provide a <code>score</code>-method to compute how well a given <code>BayesianModel</code> can be fitted to the data, according to different criteria. Since those scores are decomposable for BNs, a <code>local_score</code>-method is also exposed for node-by-node computation.</li>
-<li>The <code>StructureSearch</code>-Class and its subclasses <code>ExhaustiveSearch</code> and <code>GradientDescentSearch</code>. They are initialized with a <code>StructureScore</code>-instance and optimize that score over all <code>BayesianModel</code>s. The latter subclass has a number of optional search enhancements.</li>
+<li>The <code>StructureSearch</code>-Class and its subclasses <code>ExhaustiveSearch</code> and <code>HCSearch</code>. They are initialized with a <code>StructureScore</code>-instance and optimize that score over all <code>BayesianModel</code>s. The latter subclass has a number of 
+optional search enhancements.</li>
 </ul>
 <p>So far <code>BayesianScore</code> supports BDeu and K2 priors, I’ll think for a good interface to specify other prior weights.
 With K2 priors the score is given by the following form:</p>

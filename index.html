@@ -61,6 +61,37 @@
 
 <article>
   <header>
+    <h2><a href="http://pgmpy.chrisittner.de/2016/07/07/examples-for-basic-bn-learning.html#examples-for-basic-bn-learning">Examples for basic BN learning,</a></h2>
+    <p>
+      Posted on Thu 07 July 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a>
+    </p>
+  </header>
+  <div>
+      <p>I’ll soon finish basic score-based structure estimation for <code>BayesianModel</code>s. Below is the current state of my PR, with two examples.</p>
+<h2 id="changes-in-pgmpyestimators">Changes in <code>pgmpy/estimators/</code></h2>
+<p>I rearranged the estimator classes to inherit from each other like this:</p>
+<div class="codehilite"><pre><span></span>.                                    MaximumLikelihoodEstimator
+                                   /
+                ParameterEstimator -- BayesianEstimator
+              /
+BaseEstimator                        ExhaustiveSearch
+            | \                    /
+            |   StructureEstimator -- HillClimbSearch
+            |                      \
+            |                        ConstraintBasedEstimator
+            |
+            |
+            |                BayesianScore
+            |              /
+            StructureScore -- BicScore
+</pre></div>
+<p><code>BaseEstimator ...</code></p>
+      <a class="btn" href="http://pgmpy.chrisittner.de/2016/07/07/examples-for-basic-bn-learning.html#examples-for-basic-bn-learning">Continue reading</a>
+  </div>
+  <hr />
+</article>
+<article>
+  <header>
     <h2><a href="http://pgmpy.chrisittner.de/2016/06/24/score-based-structure-learning-bns.html#score-based-structure-learning-bns">Score-based Structure Learning BNs</a></h2>
     <p>
       Posted on Fri 24 June 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a>
