@@ -97,21 +97,10 @@
 R version <span class="m">3.3.1</span> <span class="p">(</span><span class="m">2016-06-21</span><span class="p">)</span> <span class="o">--</span> <span class="s">"Bug in Your Hair"</span>
 Copyright <span class="p">(</span>C<span class="p">)</span> <span class="m">2016</span> The R Foundation <span class="kr">for</span> Statistical Computing
 Platform<span class="o">:</span> x86_64<span class="o">-</span>pc<span class="o">-</span>linux<span class="o">-</span>gnu <span class="p">(</span><span class="m">64</span><span class="o">-</span>bit<span class="p">)</span>
-<span class="p">[</span><span class="kc">...</span><span class="p">]</span>
 <span class="o">&gt;</span> <span class="kn">library</span><span class="p">(</span>bnlearn<span class="p">)</span>
 <span class="o">&gt;</span> A <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">"a"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"c"</span><span class="p">,</span> <span class="s">"d"</span><span class="p">)</span>
 <span class="o">&gt;</span> B <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"g"</span><span class="p">,</span> <span class="s">"h"</span><span class="p">,</span> <span class="s">"h"</span><span class="p">)</span>
 <span class="o">&gt;</span> testdata <span class="o">=</span> <span class="kt">data.frame</span><span class="p">(</span>A<span class="p">,</span>B<span class="p">)</span>
-<span class="o">&gt;</span>
-<span class="o">&gt;</span> emptymodel <span class="o">=</span> empty.graph<span class="p">(</span><span class="kp">names</span><span class="p">(</span>testdata<span class="p">))</span>
-<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"k2"</span><span class="p">)</span>
-<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.85368</span>
-<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">10</span><span class="p">)</span>
-<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.35111</span>
-<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">25</span><span class="p">)</span>
-<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.46961</span>
-<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bic"</span><span class="p">)</span>
-<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-20.989</span>
 <span class="o">&gt;</span>
 <span class="o">&gt;</span> testmodel <span class="o">=</span> empty.graph<span class="p">(</span><span class="kp">names</span><span class="p">(</span>testdata<span class="p">))</span>
 <span class="o">&gt;</span> modelstring<span class="p">(</span>testmodel<span class="p">)</span> <span class="o">=</span> <span class="s">"[A][B|A]"</span>
