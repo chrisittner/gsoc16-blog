@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/pygments.min.css">
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/font-awesome.min.css">
+
+
+    <link href="http://pgmpy.chrisittner.de/feed.rss" type="application/atom+xml" rel="alternate" title="Structure Learning for pgmpy Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+
+<meta name="author" content="Chris Ittner" />
+<meta name="description" content="After some doubts about the BN structure learning performance on a few test cases, I cross checked my structure scoring functions against the implementation from the bnlearn R package. After minor changes the implemented scores now yield the exact same results: pgmpy: ~$ python Python 3.5.2 (default, Jun 28 ..." />
+<meta name="keywords" content="">
+<meta property="og:site_name" content="Structure Learning for pgmpy"/>
+<meta property="og:title" content="BN structure score cross-check,"/>
+<meta property="og:description" content="After some doubts about the BN structure learning performance on a few test cases, I cross checked my structure scoring functions against the implementation from the bnlearn R package. After minor changes the implemented scores now yield the exact same results: pgmpy: ~$ python Python 3.5.2 (default, Jun 28 ..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://pgmpy.chrisittner.de/2016/07/07/score-cross-check.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-07-07 00:00:00+02:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://pgmpy.chrisittner.de/">
+<meta property="article:section" content="score_based"/>
+<meta property="og:image" content="http://pgmpy.readthedocs.org/en/latest/_images/logo.png">
+  <title>Structure Learning for pgmpy &ndash; BN structure score cross-check,</title>
+
+  <style>
+    aside nav > ul > li { text-transform: none !important; }
+    aside > div > a > img { border-radius:0; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://pgmpy.chrisittner.de">
+        <img src="http://pgmpy.readthedocs.org/en/latest/_images/logo.png" alt="Learning BN Structure" title="Learning BN Structure">
+      </a>
+      <h1><a href="http://pgmpy.chrisittner.de">Learning BN Structure</a></h1>
+      <p>A GSoC blog for pgmpy</p>
+      <nav>
+        <ul class="list">
+          <li><a href="http://pgmpy.chrisittner.de">Blog</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/gsoc-proposal.html#gsoc-proposal">GSoC Project Outline</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-the-project.html#about-the-project">About the Project</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-me.html#about-me">About Me</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-envelope-o" href="mailto:pgmpy-gsoc@chrisittner.de" target="_blank"><i class="fa fa-envelope-o"></i></a></li>
+        <li><a class="sc-rss" href="/feed.rss" target="_blank"><i class="fa fa-rss"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/chrisittner" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="score-cross-check">BN structure score cross-check,</h1>
+    <p>Posted on Thu 07 July 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a></p>
+  </header>
+  <div>
+    <p>After some doubts about the BN structure learning performance on a few test cases, I cross checked my structure scoring functions against the implementation from the <a href="http://www.bnlearn.com/documentation/man/bnlearn-package.html">bnlearn</a> R package. After minor changes the implemented scores now yield the exact same results:</p>
+<p><strong>pgmpy:</strong></p>
+<div class="codehilite"><pre><span></span><span class="o">~</span><span class="err">$</span> <span class="n">python</span>
+<span class="n">Python</span> <span class="mf">3.5</span><span class="o">.</span><span class="mi">2</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jun</span> <span class="mi">28</span> <span class="mi">2016</span><span class="p">,</span> <span class="mi">08</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mo">01</span><span class="p">)</span>
+<span class="p">[</span><span class="n">GCC</span> <span class="mf">6.1</span><span class="o">.</span><span class="mi">1</span> <span class="mi">20160602</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
+<span class="n">Type</span> <span class="s2">"help"</span><span class="p">,</span> <span class="s2">"copyright"</span><span class="p">,</span> <span class="s2">"credits"</span> <span class="ow">or</span> <span class="s2">"license"</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pgmpy.models</span> <span class="kn">import</span> <span class="n">BayesianModel</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">K2Score</span><span class="p">,</span> <span class="n">BdeuScore</span><span class="p">,</span> <span class="n">BicScore</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">testdata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">'A'</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">],</span>
+<span class="o">...</span>                               <span class="s1">'B'</span><span class="p">:</span> <span class="p">[</span><span class="s2">"f"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"g"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">]})</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">testmodel</span> <span class="o">=</span> <span class="n">BayesianModel</span><span class="p">([[</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">K2Score</span><span class="p">(</span><span class="n">testdata</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testmodel</span><span class="p">)</span>
+<span class="o">-</span><span class="mf">18.872853850025642</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">BdeuScore</span><span class="p">(</span><span class="n">testdata</span><span class="p">,</span> <span class="n">equivalent_sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testmodel</span><span class="p">)</span>
+<span class="o">-</span><span class="mf">18.623529328925628</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">BdeuScore</span><span class="p">(</span><span class="n">testdata</span><span class="p">,</span> <span class="n">equivalent_sample_size</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testmodel</span><span class="p">)</span>
+<span class="o">-</span><span class="mf">18.944492057037543</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">BicScore</span><span class="p">(</span><span class="n">testdata</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testmodel</span><span class="p">)</span>
+<span class="o">-</span><span class="mf">22.527283368198223</span>
+</pre></div>
+<p><strong>bnlearn:</strong></p>
+<div class="codehilite"><pre><span></span><span class="o">~$</span> R
+R version <span class="m">3.3.1</span> <span class="p">(</span><span class="m">2016-06-21</span><span class="p">)</span> <span class="o">--</span> <span class="s">"Bug in Your Hair"</span>
+Copyright <span class="p">(</span>C<span class="p">)</span> <span class="m">2016</span> The R Foundation <span class="kr">for</span> Statistical Computing
+Platform<span class="o">:</span> x86_64<span class="o">-</span>pc<span class="o">-</span>linux<span class="o">-</span>gnu <span class="p">(</span><span class="m">64</span><span class="o">-</span>bit<span class="p">)</span>
+<span class="p">[</span><span class="kc">...</span><span class="p">]</span>
+<span class="o">&gt;</span> <span class="kn">library</span><span class="p">(</span>bnlearn<span class="p">)</span>
+<span class="o">&gt;</span> A <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">"a"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"c"</span><span class="p">,</span> <span class="s">"d"</span><span class="p">)</span>
+<span class="o">&gt;</span> B <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">,</span> <span class="s">"g"</span><span class="p">,</span> <span class="s">"h"</span><span class="p">,</span> <span class="s">"h"</span><span class="p">)</span>
+<span class="o">&gt;</span> testdata <span class="o">=</span> <span class="kt">data.frame</span><span class="p">(</span>A<span class="p">,</span>B<span class="p">)</span>
+<span class="o">&gt;</span>
+<span class="o">&gt;</span> emptymodel <span class="o">=</span> empty.graph<span class="p">(</span><span class="kp">names</span><span class="p">(</span>testdata<span class="p">))</span>
+<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"k2"</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.85368</span>
+<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">10</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.35111</span>
+<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">25</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-19.46961</span>
+<span class="o">&gt;</span> score<span class="p">(</span>emptymodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bic"</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-20.989</span>
+<span class="o">&gt;</span>
+<span class="o">&gt;</span> testmodel <span class="o">=</span> empty.graph<span class="p">(</span><span class="kp">names</span><span class="p">(</span>testdata<span class="p">))</span>
+<span class="o">&gt;</span> modelstring<span class="p">(</span>testmodel<span class="p">)</span> <span class="o">=</span> <span class="s">"[A][B|A]"</span>
+<span class="o">&gt;</span> score<span class="p">(</span>testmodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"k2"</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-18.87285</span>
+<span class="o">&gt;</span> score<span class="p">(</span>testmodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">10</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-18.62353</span>
+<span class="o">&gt;</span> score<span class="p">(</span>testmodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bde"</span><span class="p">,</span> iss<span class="o">=</span><span class="m">25</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-18.94449</span>
+<span class="o">&gt;</span> score<span class="p">(</span>testmodel<span class="p">,</span> testdata<span class="p">,</span> type <span class="o">=</span> <span class="s">"bic"</span><span class="p">)</span>
+<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-22.52728</span>
+</pre></div>
+<p>So at least this part is now somewhat validated.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+    </p>
+  </div>
+</article>
+
+    <footer>
+<p>
+  &copy; Chris Ittner 2016 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "BN structure score cross-check,",
+  "headline": "BN structure score cross-check,",
+  "datePublished": "2016-07-07 00:00:00+02:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Chris Ittner",
+    "url": "http://pgmpy.chrisittner.de/"
+  },
+  "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
+  "url": "http://pgmpy.chrisittner.de/2016/07/07/score-cross-check.html",
+  "description": "After some doubts about the BN structure learning performance on a few test cases, I cross checked my structure scoring functions against the implementation from the bnlearn R package. After minor changes the implemented scores now yield the exact same results: pgmpy: ~$ python Python 3.5.2 (default, Jun 28 ..."
+}
+</script></body>
+</html>
