@@ -61,6 +61,43 @@
 
 <article>
   <header>
+    <h2><a href="http://pgmpy.chrisittner.de/2016/08/17/pc.html#pc">PC constraint-based BN learning algorithm</a></h2>
+    <p>
+      Posted on Wed 17 August 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a>
+    </p>
+  </header>
+  <div>
+      <p>The past while I have been working on basic constraint-based BN learning. This required a
+method to perform conditional independence tests on the data set. Surprisingly, such
+tests for conditional independence are not part of <code>scipy.stats</code> or other statistics libraries.</p>
+<p>To test if <code>X _|_ Y | Zs</code>, one ...</p>
+      <a class="btn" href="http://pgmpy.chrisittner.de/2016/08/17/pc.html#pc">Continue reading</a>
+  </div>
+  <hr />
+</article>
+<article>
+  <header>
+    <h2><a href="http://pgmpy.chrisittner.de/2016/08/14/hill-climb-estimator.html#hill-climb-estimator">HillClimbEstimator done</a></h2>
+    <p>
+      Posted on Sun 14 August 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a>
+    </p>
+  </header>
+  <div>
+      <p><code>pgmpy</code> now has a <a href="https://github.com/pgmpy/pgmpy/pull/718">basic hill climb BN structure estimator</a>.</p>
+<p>Usage:</p>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">HillClimbSearch</span><span class="p">,</span> <span class="n">BicScore</span>
+
+<span class="c1"># create data sample with 9 random variables:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s1">'ABCDEFGHI'</span><span class="p">))</span>
+<span class="c1"># add 10th dependent variable ...</span></pre></div>
+      <a class="btn" href="http://pgmpy.chrisittner.de/2016/08/14/hill-climb-estimator.html#hill-climb-estimator">Continue reading</a>
+  </div>
+  <hr />
+</article>
+<article>
+  <header>
     <h2><a href="http://pgmpy.chrisittner.de/2016/08/02/score-cross-check.html#score-cross-check">BN structure score cross-check</a></h2>
     <p>
       Posted on Tue 02 August 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/pygments.min.css">
+  <link rel="stylesheet" type="text/css" href="http://pgmpy.chrisittner.de/theme/stylesheet/font-awesome.min.css">
+
+
+    <link href="http://pgmpy.chrisittner.de/feed.rss" type="application/atom+xml" rel="alternate" title="Structure Learning for pgmpy Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+
+<meta name="author" content="Chris Ittner" />
+<meta name="description" content="The past while I have been working on basic constraint-based BN learning. This required a method to perform conditional independence tests on the data set. Surprisingly, such tests for conditional independence are not part of scipy.stats or other statistics libraries. To test if X _|_ Y | Zs, one ..." />
+<meta name="keywords" content="">
+<meta property="og:site_name" content="Structure Learning for pgmpy"/>
+<meta property="og:title" content="PC constraint-based BN learning algorithm"/>
+<meta property="og:description" content="The past while I have been working on basic constraint-based BN learning. This required a method to perform conditional independence tests on the data set. Surprisingly, such tests for conditional independence are not part of scipy.stats or other statistics libraries. To test if X _|_ Y | Zs, one ..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://pgmpy.chrisittner.de/2016/08/17/pc.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-08-17 00:00:00+02:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://pgmpy.chrisittner.de/">
+<meta property="article:section" content="score_based"/>
+<meta property="og:image" content="http://pgmpy.readthedocs.org/en/latest/_images/logo.png">
+  <title>Structure Learning for pgmpy &ndash; PC constraint-based BN learning algorithm</title>
+
+  <style>
+    aside nav > ul > li { text-transform: none !important; }
+    aside > div > a > img { border-radius:0; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://pgmpy.chrisittner.de">
+        <img src="http://pgmpy.readthedocs.org/en/latest/_images/logo.png" alt="Learning BN Structure" title="Learning BN Structure">
+      </a>
+      <h1><a href="http://pgmpy.chrisittner.de">Learning BN Structure</a></h1>
+      <p>A GSoC blog for pgmpy</p>
+      <nav>
+        <ul class="list">
+          <li><a href="http://pgmpy.chrisittner.de">Blog</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/gsoc-proposal.html#gsoc-proposal">GSoC Project Outline</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-the-project.html#about-the-project">About the Project</a></li>
+          <li><a href="http://pgmpy.chrisittner.de/pages/about-me.html#about-me">About Me</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-envelope-o" href="mailto:pgmpy-gsoc@chrisittner.de" target="_blank"><i class="fa fa-envelope-o"></i></a></li>
+        <li><a class="sc-rss" href="/feed.rss" target="_blank"><i class="fa fa-rss"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/chrisittner" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+
+<article>
+  <header>
+    <h1 id="pc">PC constraint-based BN learning algorithm</h1>
+    <p>Posted on Wed 17 August 2016 in <a href="http://pgmpy.chrisittner.de/score_based/">score_based</a></p>
+  </header>
+  <div>
+    <p>The past while I have been working on basic constraint-based BN learning. This required a
+method to perform conditional independence tests on the data set. Surprisingly, such
+tests for conditional independence are not part of <code>scipy.stats</code> or other statistics libraries.</p>
+<p>To test if <code>X _|_ Y | Zs</code>, one has to manually construct the frequencies one would expect if the variables were conditionally independent, namely <span class="math">\(P(X,Y,Zs)=P(X|Zs)\cdot P(Y|Zs)\cdot P(Zs)\)</span> and compare it with the observed frequencies, using e.g. a <span class="math">\(\chi^2\)</span> deviance statistic (provided by <code>scipy.stats</code>). Expected frequencies can be computed as <span class="math">\(\frac{P(X, Zs)\cdot P(Y, Zs)}{P(Zs)}\)</span>,
+So one can start with a joint state_count/frequency table and marginalize out <span class="math">\(X\)</span>, <span class="math">\(Y\)</span>, and both and compute the expected distribution from the margins.</p>
+<p>Once such a testing method is in place, the PC algorithm can be used to infer a partially directed acyclic graph (PDAG) structure to capture the dependencies in the data, in polynomial time. Finally, the PDAG can be fully oriented and completed to a Bayesian network. The implementation looks like this:</p>
+<h2 id="methods-of-the-constraintbasedestimator-class">Methods of the <code>ConstraintBasedEstimator</code> class:</h2>
+<h4 id="test_conditional_independenceself-x-y-zs"><code>test_conditional_independence(self, X, Y, Zs=[])</code></h4>
+<p>Chi-square conditional independence test (PGM book,  18.2.2.3, page 789)</p>
+<h4 id="build_skeletonnodes-independencies"><code>build_skeleton(nodes, independencies)</code></h4>
+<p>Build undirected graph from independencies/1st part of PC algorithm (PGM book, 3.4.2.1, page 85, like Algorithm 3.3)</p>
+<h4 id="skeleton_to_pdagskel-seperating_sets"><code>skeleton_to_pdag(skel, seperating_sets)</code></h4>
+<p>Orients compelled edges of skeleton/2nd part of PC (<a href="http://www.cs.technion.ac.il/~dang/books/Learning%20Bayesian%20Networks(Neapolitan,%20Richard).pdf">Neapolitan, Learning Bayseian Networks</a>, Section 10.1.2, page 550, Algorithm 10.2)</p>
+<h4 id="pdag_to_dagpdag"><code>pdag_to_dag(pdag)</code></h4>
+<p>Method to (faithfully) orient the remaining edges to obtain <code>BayesianModel</code> (Implemented as described <a href="http://www.jmlr.org/papers/volume2/chickering02a/chickering02a.pdf">here</a> on page 454 last paragraph (in text)).</p>
+<p>Finally three methods that combine the above parts for convenient access:</p>
+<h4 id="estimateself-p_value001"><code>estimate(self, p_value=0.01)</code></h4>
+<p>-&gt; returns <code>BayesianModel</code> estimate for data</p>
+<h4 id="estimate_skeletonself-p_value001"><code>estimate_skeleton(self, p_value=0.01)</code></h4>
+<p>-&gt; returns <code>UndirectedGraph</code> estimate for data</p>
+<h4 id="estimate_from_independenciesnodes-independencies"><code>estimate_from_independencies(nodes, independencies)</code></h4>
+<p>-&gt; static, takes set of independencies and estimates <code>BayesianModel</code>.</p>
+<h2 id="examples">Examples:</h2>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pgmpy.base</span> <span class="kn">import</span> <span class="n">DirectedGraph</span>
+<span class="kn">from</span> <span class="nn">pgmpy.estimators</span> <span class="kn">import</span> <span class="n">ConstraintBasedEstimator</span>
+<span class="kn">from</span> <span class="nn">pgmpy.independencies</span> <span class="kn">import</span> <span class="n">Independencies</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2500</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s1">'XYZ'</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'sum'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># estimate BN structue:</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ConstraintBasedEstimator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">estimate</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"Resulting network: "</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+</pre></div>
+<p>Output:</p>
+<div class="codehilite"><pre><span></span>      X  Y  Z  sum
+0     1  3  4    8
+1     3  3  0    6
+2     4  4  1    9
+...  .. .. ..  ...
+2497  0  4  2    6
+2498  0  3  1    4
+2499  2  1  3    6
+
+[2500 rows x 4 columns]
+
+Resulting network: [('Z', 'sum'), ('X', 'sum'), ('Y', 'sum')]
+</pre></div>
+<p>Using parts of the algorithm manually:</p>
+<div class="codehilite"><pre><span></span><span class="c1"># some (in)dependence tests:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">50000</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s1">'ABCD'</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'E'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'A'</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">'B'</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">'C'</span><span class="p">]</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ConstraintBasedEstimator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2"> P-value for hypothesis test that A, C are dependent: "</span><span class="p">,</span>
+      <span class="n">c</span><span class="o">.</span><span class="n">test_conditional_independence</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"P-value for hypothesis test that A, B are dependent, given D: "</span><span class="p">,</span>
+      <span class="n">c</span><span class="o">.</span><span class="n">test_conditional_independence</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"P-value for hypothesis test that A, B are dependent, given D and E: "</span><span class="p">,</span>
+      <span class="n">c</span><span class="o">.</span><span class="n">test_conditional_independence</span><span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'D'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">]))</span>
+
+<span class="c1"># build skeleton from list of independencies:</span>
+<span class="n">ind</span> <span class="o">=</span> <span class="n">Independencies</span><span class="p">([</span><span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'A'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">],</span> <span class="s1">'D'</span><span class="p">])</span>
+<span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">closure</span><span class="p">()</span>
+<span class="n">skel</span><span class="p">,</span> <span class="n">sep_sets</span> <span class="o">=</span> <span class="n">ConstraintBasedEstimator</span><span class="o">.</span><span class="n">build_skeleton</span><span class="p">(</span><span class="s2">"ABCD"</span><span class="p">,</span> <span class="n">ind</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"Some skeleton: "</span><span class="p">,</span> <span class="n">skel</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+
+<span class="c1"># build PDAG from skeleton (+ sep_sets):</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="s1">'ABD'</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'C'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'A'</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">'B'</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">'D'</span><span class="p">]</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'A'</span><span class="p">]</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">ConstraintBasedEstimator</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">pdag</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">skeleton_to_pdag</span><span class="p">(</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">estimate_skeleton</span><span class="p">())</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"Some PDAG: "</span><span class="p">,</span> <span class="n">pdag</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>  <span class="c1"># edges: A-&gt;C, B-&gt;C, A--D (not directed)</span>
+
+<span class="c1"># complete PDAG to DAG:</span>
+<span class="n">pdag1</span> <span class="o">=</span> <span class="n">DirectedGraph</span><span class="p">([(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'C'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'C'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'D'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'D'</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">),</span> <span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">)])</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"PDAG: "</span><span class="p">,</span> <span class="n">pdag1</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+<span class="n">dag1</span> <span class="o">=</span> <span class="n">ConstraintBasedEstimator</span><span class="o">.</span><span class="n">pdag_to_dag</span><span class="p">(</span><span class="n">pdag1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"DAG:  "</span><span class="p">,</span> <span class="n">dag1</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+</pre></div>
+<p>Output:</p>
+<div class="codehilite"><pre><span></span>P-value for hypothesis test that A, C are dependent:  0.995509460079
+P-value for hypothesis test that A, B are dependent, given D:  0.998918522413
+P-value for hypothesis test that A, B are dependent, given D and E:  0.0
+Some skeleton:  [('A', 'D'), ('C', 'D'), ('B', 'D')]
+Some PDAG:  [('A', 'C'), ('A', 'D'), ('D', 'A'), ('B', 'C')]
+PDAG:  [('A', 'D'), ('A', 'B'), ('C', 'D'), ('C', 'B'), ('D', 'A'), ('D', 'C')]
+DAG:   [('A', 'B'), ('C', 'B'), ('D', 'A'), ('D', 'C')]
+</pre></div>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+  </div>
+  <div class="tag-cloud">
+    <p>
+    </p>
+  </div>
+</article>
+
+    <footer>
+<p>
+  &copy; Chris Ittner 2016 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "PC constraint-based BN learning algorithm",
+  "headline": "PC constraint-based BN learning algorithm",
+  "datePublished": "2016-08-17 00:00:00+02:00",
+  "dateModified": "",
+  "author": {
+    "@type": "Person",
+    "name": "Chris Ittner",
+    "url": "http://pgmpy.chrisittner.de/"
+  },
+  "image": "http://pgmpy.readthedocs.org/en/latest/_images/logo.png",
+  "url": "http://pgmpy.chrisittner.de/2016/08/17/pc.html",
+  "description": "The past while I have been working on basic constraint-based BN learning. This required a method to perform conditional independence tests on the data set. Surprisingly, such tests for conditional independence are not part of scipy.stats or other statistics libraries. To test if X _|_ Y | Zs, one ..."
+}
+</script></body>
+</html>
