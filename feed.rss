@@ -8,13 +8,15 @@ with the usual structure scores (BIC, BDeu, K2) and exhaustive search and local 
 &lt;p&gt;It will also support basic constraint-based structure learning with conditional chi2 independence tests.
 I implemented the PC algorithm and a PDAG completion procedure (under review). Finally, MMHC, a hybrid learning algorithm
 is also implemented (under review). In the beginning of the project I also worked on Bayesian parameter estimation for BNs.&lt;/p&gt;
-&lt;p&gt;While the &lt;code&gt;estimators/&lt;/code&gt;-folder is already less empty than before, a lot remains to be done. pgmpy learning does not yet have:
- - learning for &lt;code&gt;MarkovModel&lt;/code&gt;s
- - learning for continuous networks
- - better support for learning from incomplete data
- - Chow-Liu tree-structure BN learning &amp;lt;- an efficient algorithm that can find
-   the optimal tree network given data. Sounds great, then we get tree-bayes classification as well.
- - Strong documentation &amp;amp; show cases to get more people interested in pgmpy&lt;/p&gt;
+&lt;p&gt;While the &lt;code&gt;estimators/&lt;/code&gt;-folder is already less empty than before, a lot remains to be done. pgmpy learning does not yet have:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;learning for &lt;code&gt;MarkovModel&lt;/code&gt;s&lt;/li&gt;
+&lt;li&gt;learning for continuous networks&lt;/li&gt;
+&lt;li&gt;better support for learning from incomplete data&lt;/li&gt;
+&lt;li&gt;Chow-Liu tree-structure BN learning &amp;lt;- an efficient algorithm that can find
+   the optimal tree network given data. Sounds great, then we get tree-bayes classification as well.&lt;/li&gt;
+&lt;li&gt;Strong documentation &amp;amp; show cases to get more people interested in pgmpy&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;Tomorrow, I’ll share another post with my key learnings about BNs!&lt;/p&gt;</summary></entry><entry><title>PC constraint-based BN learning algorithm</title><link href="http://pgmpy.chrisittner.de/2016/08/17/pc.html" rel="alternate"></link><published>2016-08-17T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-08-17:2016/08/17/pc.html</id><summary type="html">&lt;p&gt;The past while I have been working on basic constraint-based BN learning. This required a
 method to perform conditional independence tests on the data set. Surprisingly, such
 tests for conditional independence are not part of &lt;code&gt;scipy.stats&lt;/code&gt; or other statistics libraries.&lt;/p&gt;
