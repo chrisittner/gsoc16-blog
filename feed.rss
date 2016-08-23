@@ -3,10 +3,14 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://github.com/pgmpy/pgmpy/commits?author=chrisittner"&gt;https://github.com/pgmpy/pgmpy/commits?author=chrisittner&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;In addition, these two Pull Requests are still under review:&lt;/p&gt;
+&lt;p&gt;In addition, these two Pull Requests are not yet merged:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://github.com/pgmpy/pgmpy/pull/720"&gt;https://github.com/pgmpy/pgmpy/pull/720&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://github.com/pgmpy/pgmpy/pull/721"&gt;https://github.com/pgmpy/pgmpy/pull/721&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I wrote an introduction to pgmpy’s new structure learning features here, as a Jupyter Notebook:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/pgmpy/pgmpy_notebook/pull/7/files"&gt;https://github.com/pgmpy/pgmpy_notebook/pull/7/files&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</summary></entry><entry><title>GSoC Project Status Quo</title><link href="http://pgmpy.chrisittner.de/2016/08/19/gsoc-status-quo.html" rel="alternate"></link><published>2016-08-19T00:00:00+02:00</published><author><name>Chris Ittner</name></author><id>tag:pgmpy.chrisittner.de,2016-08-19:2016/08/19/gsoc-status-quo.html</id><summary type="html">&lt;p&gt;GSoC 2016 is coming to an end I’ve just sent the last PR necessary to complete the scope of my proposal.
 It has been an exciting project, and I do feel that I learned a lot. I was able to implement
 a number of basic BN structure estimation algorithms, that I wanted to study for a long time.
